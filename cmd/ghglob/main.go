@@ -12,10 +12,14 @@ import (
 	"github.com/mattn/go-isatty"
 )
 
+// Populated by goreleaser during build.
+var version = "master"
+
 var (
-	all       = flag.Bool("all", false, "do not ignore entries starting with .")
-	sort      = flag.Bool("sort", false, "sort results.")
-	followSym = flag.Bool("symlink", true, "follow symlink if true")
+	showVersion = flag.Bool("version", false, "print version")
+	all         = flag.Bool("all", false, "do not ignore entries starting with .")
+	sort        = flag.Bool("sort", false, "sort results.")
+	followSym   = flag.Bool("symlink", true, "follow symlink if true")
 )
 
 func usage() {
@@ -32,6 +36,11 @@ func usage() {
 func main() {
 	flag.Usage = usage
 	flag.Parse()
+
+	if *showVersion {
+		fmt.Fprintln(os.Stdout, version)
+		os.Exit(0)
+	}
 
 	if len(flag.Args()) == 0 {
 		flag.PrintDefaults()
