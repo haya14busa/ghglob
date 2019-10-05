@@ -9,7 +9,7 @@ builds:
     main: ./cmd/ghglob/
     ldflags: -s -w -X main.version=={{.Version}}
 
-archive:
+archives:
   replacements:
     darwin: Darwin
     linux: Linux
@@ -20,7 +20,7 @@ archive:
     - LICENSE
     - README.md
 
-brew:
+brews:
   github:
     owner: haya14busa
     name: homebrew-tap
