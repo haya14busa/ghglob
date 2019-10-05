@@ -2,6 +2,7 @@ package ghglob
 
 import (
 	"path/filepath"
+	"sort"
 	"strings"
 	"testing"
 
@@ -162,11 +163,12 @@ var tests = []struct {
 
 func TestGlobList(t *testing.T) {
 	opt := Option{
-		Sort: true,
 		Root: "./_testdir/",
 	}
 	for _, tt := range tests {
 		got, err := GlobList(tt.ps, opt)
+		sort.Strings(got)
+		sort.Strings(tt.want)
 		if err != nil {
 			t.Errorf("GlobList(%v, ...) got error: %v", tt.ps, err)
 			continue
@@ -184,17 +186,18 @@ func TestGlobList_root(t *testing.T) {
 	}
 	testdir := filepath.Join(wd, "_testdir")
 	opt := Option{
-		Sort: true,
 		Root: testdir,
 	}
 	for _, tt := range tests {
-		ps := addPrefixDirToPattern(testdir, tt.ps)
+		ps := tt.ps
 		got, err := GlobList(ps, opt)
 		if err != nil {
 			t.Errorf("GlobList(%v, ...) got error: %v", ps, err)
 			continue
 		}
-		want := addPrefixDir(testdir, tt.want)
+		sort.Strings(got)
+		sort.Strings(tt.want)
+		want := tt.want
 		if diff := cmp.Diff(got, want); diff != "" {
 			t.Errorf("GlobList(%v, ...) got diff:\n%s\n\ngot:\n%s", ps, diff, strings.Join(got, "\n"))
 		}

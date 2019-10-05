@@ -18,7 +18,6 @@ var version = "master"
 var (
 	showVersion = flag.Bool("version", false, "print version")
 	all         = flag.Bool("all", false, "do not ignore entries starting with .")
-	sort        = flag.Bool("sort", false, "sort results.")
 	followSym   = flag.Bool("symlink", true, "follow symlink if true")
 )
 
@@ -60,7 +59,7 @@ func glob() {
 		ps = append(ps, "!**/.*")
 		ps = append(ps, "!**/.*/**")
 	}
-	opt := ghglob.Option{Sort: *sort, FollowSymbolicLinks: *followSym}
+	opt := ghglob.Option{FollowSymbolicLinks: *followSym}
 	if shouldRoot(flag.Args()) {
 		opt.Root = "/"
 	}
