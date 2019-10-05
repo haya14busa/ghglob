@@ -26,11 +26,7 @@ func (matcher *Matcher) Match(s string) bool {
 	ok := false
 	for _, m := range matcher.ms {
 		if m.r.MatchString(s) {
-			if m.negate {
-				ok = false
-			} else {
-				ok = true
-			}
+			ok = !m.negate
 		}
 	}
 	return ok
