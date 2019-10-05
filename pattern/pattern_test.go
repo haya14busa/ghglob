@@ -2,7 +2,7 @@ package pattern
 
 import "testing"
 
-func TestMatch(t *testing.T) {
+func TestMatcher_Match(t *testing.T) {
 	tests := []struct {
 		ps  []string
 		ok  []string
@@ -123,25 +123,21 @@ func TestMatch(t *testing.T) {
 	}
 
 	for _, tt := range tests {
+		m, err := New(tt.ps)
+		if err != nil {
+			t.Errorf("New(%v) returns unexpected error: %v", tt.ps, err)
+			continue
+		}
+
 		for _, s := range tt.ok {
-			b, err := Match(s, tt.ps)
-			if err != nil {
-				t.Errorf("Match(%q, %v) returns unexpected error: %v", s, tt.ps, err)
-				continue
-			}
-			if !b {
+			if !m.Match(s) {
 				t.Errorf("Match(%q, %v) = false, want true", s, tt.ps)
 				dumpPattern(t, tt.ps)
 			}
 		}
 
 		for _, s := range tt.bad {
-			b, err := Match(s, tt.ps)
-			if err != nil {
-				t.Errorf("Match(%q, %v) returns unexpected error: %v", s, tt.ps, err)
-				continue
-			}
-			if b {
+			if m.Match(s) {
 				t.Errorf("Match(%q, %v) = true, want false", s, tt.ps)
 				dumpPattern(t, tt.ps)
 			}
