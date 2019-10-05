@@ -63,6 +63,18 @@ _testdir/main.go
 cmd/ghglob/main.go
 ghglob.go
 ghmatcher/ghmatcher.go
+
+# List .js or .jsx files.
+$ ghglob "**.jsx?"
+
+# As CLI arguments. e.g. https://github.com/koalaman/shellcheck
+$ shellcheck $(ghglob '**/*.sh')
+
+# gofmt except test data.
+$ gofmt -d -s $(ghglob '**.go' '!_testdir/**')
+
+# Run golint against only changed files.
+$ git diff --name-only master | ghglob '**.go' | xargs -i golint {}
 ```
 
 ## Packages
