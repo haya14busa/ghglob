@@ -1,3 +1,4 @@
+// Package pattern implements GitHub Actions file patterns matcher.
 package pattern
 
 import (
