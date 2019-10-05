@@ -3,15 +3,14 @@ package ghglob
 import (
 	"fmt"
 	"os"
+	"path/filepath"
 	"strings"
 
 	"github.com/haya14busa/ghglob/ghmatcher"
-	"github.com/karrick/godirwalk"
+	"github.com/s12chung/fastwalk"
 )
 
 type Option struct {
-	// True for faster yet non-deterministic enumeration.
-	Sort                bool
 	FollowSymbolicLinks bool
 	Root                string
 }
@@ -38,57 +37,50 @@ func Glob(files chan<- string, patterns []string, opt Option) error {
 	if err != nil {
 		return err
 	}
-	isRoot := len(opt.Root) > 0 && opt.Root[0] == '/'
 	subms, err := buildSubMatchers(patterns)
 	if err != nil {
 		return fmt.Errorf("fail to build submatchers: %v", err)
 	}
 	root := opt.Root
-	if root == "" {
+	rootPrefix := ""
+	switch root {
+	case "":
 		root = "."
+		rootPrefix = "./"
+	case "/":
+		rootPrefix = "/"
+	default:
+		rootPrefix = root + "/"
 	}
-	rootPrefix := strings.TrimPrefix(root, "./")
-	if err := godirwalk.Walk(root, &godirwalk.Options{
-		Callback: func(path string, de *godirwalk.Dirent) error {
-			p := path
-			if !isRoot {
-				p = strings.TrimPrefix(path, rootPrefix)
-			}
-			if p == "" {
-				return nil
-			}
-			if de.ModeType().IsDir() {
-				if p != strings.TrimSuffix(rootPrefix, "/") && p != "/" && shouldSkipDir(subms, p) {
-					return skipdir{}
-				}
-				return nil
-			}
-			if !matcher.Match(p) {
-				return nil
-			}
-			files <- p
+
+	return fastwalk.Walk(root, func(path string, typ os.FileMode) error {
+		p := strings.TrimPrefix(path, rootPrefix)
+		if p == "" {
 			return nil
-		},
-		ErrorCallback: func(path string, err error) godirwalk.ErrorAction {
-			if _, ok := err.(skipdir); ok {
-				return godirwalk.SkipNode
+		}
+
+		if opt.FollowSymbolicLinks && typ == os.ModeSymlink {
+			followedPath, err := filepath.EvalSymlinks(path)
+			if err == nil {
+				fi, err := os.Lstat(followedPath)
+				if err == nil && fi.IsDir() {
+					return fastwalk.TraverseLink
+				}
 			}
-			fmt.Fprintf(os.Stderr, "ERROR: %s\n", err)
-			return godirwalk.Halt
-		},
+		}
 
-		Unsorted:            !opt.Sort,
-		FollowSymbolicLinks: opt.FollowSymbolicLinks,
-	}); err != nil {
-		return err
-	}
-	return nil
-}
-
-type skipdir struct{}
-
-func (skipdir) Error() string {
-	return "skipdir"
+		if typ.IsDir() {
+			if p != strings.TrimSuffix(rootPrefix, "/") && p != "/" && shouldSkipDir(subms, p) {
+				return filepath.SkipDir
+			}
+			return nil
+		}
+		if !matcher.Match(p) {
+			return nil
+		}
+		files <- p
+		return nil
+	})
 }
 
 func buildSubMatchers(patterns []string) ([]*ghmatcher.Matcher, error) {
