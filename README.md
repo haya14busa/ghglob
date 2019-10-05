@@ -1,6 +1,6 @@
 # ghglob
 
-[![Go status](https://github.com/reviewdog/reviewdog/workflows/Go/badge.svg)](https://github.com/reviewdog/reviewdog/actions)
+[![Go status](https://github.com/haya14busa/ghglob/workflows/Go/badge.svg)](https://github.com/haya14busa/ghglob/actions)
 
 **ghglob** is glob, or more like pattern matcher based on GitHub Actions's
 [Filter pattern spec](https://help.github.com/en/articles/workflow-syntax-for-github-actions#filter-pattern-cheat-sheet).
@@ -24,7 +24,23 @@ Support multiple patterns including negation (`!<pattern>`).
 ### Installation
 
 ```shell
-go get github.com/haya14busa/ghglob/cmd/ghglob
+# Install latest version. (Install it into ./bin/ by default).
+$ curl -sfL https://raw.githubusercontent.com/haya14busa/ghglob/master/install.sh| sh -s
+
+# Specify installation directory ($(go env GOPATH)/bin/) and version.
+$ curl -sfL https://raw.githubusercontent.com/haya14busa/ghglob/master/install.sh| sh -s -- -b $(go env GOPATH)/bin [vX.Y.Z]
+
+# In alpine linux (as it does not come with curl by default)
+$ wget -O - -q https://raw.githubusercontent.com/haya14busa/ghglob/master/install.sh| sh -s [vX.Y.Z]
+
+$ go get github.com/haya14busa/ghglob/cmd/ghglob
+
+# homebrew / linuxbrew
+$ brew install haya14busa/tap/ghglob
+$ brew upgrade haya14busa/tap/ghglob
+
+# Go
+$ go get github.com/haya14busa/ghglob/cmd/ghglob
 ```
 
 ### Example usages
