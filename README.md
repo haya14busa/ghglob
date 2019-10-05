@@ -48,7 +48,7 @@ $ go get github.com/haya14busa/ghglob/cmd/ghglob
 ### Example usages
 
 ```
-$ ghglob **/*.go'
+$ ghglob '**/*.go'
 cmd/ghglob/main.go 99
 ghmatcher/ghmatcher.go
 ghmatcher/ghmatcher_test.go
@@ -65,7 +65,7 @@ ghglob.go
 ghmatcher/ghmatcher.go
 
 # List .js or .jsx files.
-$ ghglob "**.jsx?"
+$ ghglob '**.jsx?'
 
 # As CLI arguments. e.g. https://github.com/koalaman/shellcheck
 $ shellcheck $(ghglob '**/*.sh')
