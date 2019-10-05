@@ -11,21 +11,20 @@ import (
 
 type Option struct {
 	// True for faster yet non-deterministic enumeration.
-	Sort bool
+	Sort                bool
+	FollowSymbolicLinks bool
 }
 
-func Glob(patterns []string, opt Option) ([]string, error) {
+func Glob(files chan<- string, patterns []string, opt Option) error {
+	defer close(files)
 	matcher, err := pattern.New(patterns)
 	if err != nil {
-		return nil, err
+		return err
 	}
-
 	subms, err := buildSubMatchers(patterns)
 	if err != nil {
-		return nil, fmt.Errorf("fail to build submatchers", err)
+		return fmt.Errorf("fail to build submatchers: %v", err)
 	}
-
-	var files []string
 	if err := godirwalk.Walk(".", &godirwalk.Options{
 		Callback: func(path string, de *godirwalk.Dirent) error {
 			if de.ModeType().IsDir() {
@@ -37,7 +36,7 @@ func Glob(patterns []string, opt Option) ([]string, error) {
 			if !matcher.Match(path) {
 				return nil
 			}
-			files = append(files, path)
+			files <- path
 			return nil
 		},
 		ErrorCallback: func(path string, err error) godirwalk.ErrorAction {
@@ -49,11 +48,11 @@ func Glob(patterns []string, opt Option) ([]string, error) {
 		},
 
 		Unsorted:            !opt.Sort,
-		FollowSymbolicLinks: true,
+		FollowSymbolicLinks: opt.FollowSymbolicLinks,
 	}); err != nil {
-		return nil, err
+		return err
 	}
-	return files, nil
+	return nil
 }
 
 type skipdir struct{}

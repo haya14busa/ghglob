@@ -1,6 +1,7 @@
 package main
 
 import (
+	"bufio"
 	"flag"
 	"fmt"
 	"os"
@@ -10,8 +11,9 @@ import (
 )
 
 var (
-	all  = flag.Bool("all", false, "do not ignore entries starting with .")
-	sort = flag.Bool("sort", true, "sort results. Set false if you want faster yet non-deterministic enumeration.")
+	all       = flag.Bool("all", false, "do not ignore entries starting with .")
+	sort      = flag.Bool("sort", false, "sort results.")
+	followSym = flag.Bool("symlink", true, "follow symlink if true")
 )
 
 func usage() {
@@ -38,13 +40,18 @@ func main() {
 		ps = append(ps, "!**/.*")
 		ps = append(ps, "!**/.*/**")
 	}
-	files, err := ghglob.Glob(ps, ghglob.Option{Sort: *sort})
-	if err != nil {
-		fmt.Fprintln(os.Stderr, err)
-		os.Exit(1)
-	}
-	for _, f := range files {
-		fmt.Fprintln(os.Stdout, f)
+	opt := ghglob.Option{Sort: *sort, FollowSymbolicLinks: *followSym}
+	files := make(chan string, 100)
+	go func() {
+		if err := ghglob.Glob(files, ps, opt); err != nil {
+			fmt.Fprintln(os.Stderr, err)
+			os.Exit(1)
+		}
+	}()
+	w := bufio.NewWriter(os.Stdout)
+	defer w.Flush()
+	for f := range files {
+		fmt.Fprintln(w, f)
 	}
 }
 
