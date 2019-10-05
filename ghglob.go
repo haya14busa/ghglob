@@ -13,6 +13,18 @@ type Option struct {
 	// True for faster yet non-deterministic enumeration.
 	Sort                bool
 	FollowSymbolicLinks bool
+	Root                string
+}
+
+func GlobList(patterns []string, opt Option) (files []string, err error) {
+	ch := make(chan string)
+	go func() {
+		err = Glob(ch, patterns, opt)
+	}()
+	for f := range ch {
+		files = append(files, f)
+	}
+	return files, nil
 }
 
 func Glob(files chan<- string, patterns []string, opt Option) error {
@@ -25,18 +37,27 @@ func Glob(files chan<- string, patterns []string, opt Option) error {
 	if err != nil {
 		return fmt.Errorf("fail to build submatchers: %v", err)
 	}
-	if err := godirwalk.Walk(".", &godirwalk.Options{
+	root := opt.Root
+	if root == "" {
+		root = "."
+	}
+	rootPrefix := strings.TrimPrefix(root, "./")
+	if err := godirwalk.Walk(root, &godirwalk.Options{
 		Callback: func(path string, de *godirwalk.Dirent) error {
+			p := strings.TrimPrefix(path, rootPrefix)
+			if p == "" {
+				return nil
+			}
 			if de.ModeType().IsDir() {
-				if shouldSkipDir(subms, path) {
+				if p != strings.TrimSuffix(rootPrefix, "/") && shouldSkipDir(subms, p) {
 					return skipdir{}
 				}
 				return nil
 			}
-			if !matcher.Match(path) {
+			if !matcher.Match(p) {
 				return nil
 			}
-			files <- path
+			files <- p
 			return nil
 		},
 		ErrorCallback: func(path string, err error) godirwalk.ErrorAction {
