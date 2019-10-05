@@ -56,8 +56,7 @@ func main() {
 func glob() {
 	ps := flag.Args()
 	if !*all && shouldIgnoreDot(ps) {
-		ps = append(ps, "!**/.*")
-		ps = append(ps, "!**/.*/**")
+		ps = append(ps, "!**/.**")
 	}
 	opt := ghglob.Option{FollowSymbolicLinks: *followSym}
 	if shouldRoot(flag.Args()) {
