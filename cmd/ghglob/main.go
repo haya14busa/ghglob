@@ -8,7 +8,7 @@ import (
 	"strings"
 
 	"github.com/haya14busa/ghglob"
-	"github.com/haya14busa/ghglob/pattern"
+	"github.com/haya14busa/ghglob/ghmatcher"
 	"github.com/mattn/go-isatty"
 )
 
@@ -71,7 +71,7 @@ func glob() {
 
 func filter() {
 	s := bufio.NewScanner(os.Stdin)
-	m, err := pattern.New(flag.Args())
+	m, err := ghmatcher.New(flag.Args())
 	if err != nil {
 		fmt.Fprintln(os.Stderr, err)
 		os.Exit(1)

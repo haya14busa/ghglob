@@ -1,4 +1,4 @@
-package pattern
+package ghmatcher
 
 import "testing"
 

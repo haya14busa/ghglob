@@ -5,7 +5,7 @@ import (
 	"os"
 	"strings"
 
-	"github.com/haya14busa/ghglob/pattern"
+	"github.com/haya14busa/ghglob/ghmatcher"
 	"github.com/karrick/godirwalk"
 )
 
@@ -29,7 +29,7 @@ func GlobList(patterns []string, opt Option) (files []string, err error) {
 
 func Glob(files chan<- string, patterns []string, opt Option) error {
 	defer close(files)
-	matcher, err := pattern.New(patterns)
+	matcher, err := ghmatcher.New(patterns)
 	if err != nil {
 		return err
 	}
@@ -86,8 +86,8 @@ func (skipdir) Error() string {
 	return "skipdir"
 }
 
-func buildSubMatchers(patterns []string) ([]*pattern.Matcher, error) {
-	var ms []*pattern.Matcher
+func buildSubMatchers(patterns []string) ([]*ghmatcher.Matcher, error) {
+	var ms []*ghmatcher.Matcher
 	for _, p := range patterns {
 		if len(p) > 0 && p[0] == '!' {
 			continue
@@ -98,7 +98,7 @@ func buildSubMatchers(patterns []string) ([]*pattern.Matcher, error) {
 			if strings.Contains(seps[i], "**") {
 				ghpattern = strings.Join(append(seps[:i], "**"), "/")
 			}
-			m, err := pattern.New([]string{ghpattern})
+			m, err := ghmatcher.New([]string{ghpattern})
 			if err != nil {
 				return nil, err
 			}
@@ -108,7 +108,7 @@ func buildSubMatchers(patterns []string) ([]*pattern.Matcher, error) {
 	return ms, nil
 }
 
-func shouldSkipDir(ms []*pattern.Matcher, path string) bool {
+func shouldSkipDir(ms []*ghmatcher.Matcher, path string) bool {
 	if len(ms) == 0 || path == "." {
 		return false
 	}

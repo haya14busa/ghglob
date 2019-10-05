@@ -1,6 +1,6 @@
-// Package pattern implements pattern matcher which imitates GitHub Actions
+// Package ghmatcher implements pattern matcher which imitates GitHub Actions
 // filter patterns (UNOFFICIAL). https://help.github.com/en/articles/workflow-syntax-for-github-actions#filter-pattern-cheat-sheet.
-package pattern
+package ghmatcher
 
 import (
 	"regexp"
