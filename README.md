@@ -2,6 +2,7 @@
 
 [![Go status](https://github.com/haya14busa/ghglob/workflows/Go/badge.svg)](https://github.com/haya14busa/ghglob/actions)
 [![releases](https://img.shields.io/github/release/haya14busa/ghglob.svg)](https://github.com/haya14busa/ghglob/releases)
+[![codecov](https://codecov.io/gh/haya14busa/ghglob/branch/master/graph/badge.svg)](https://codecov.io/gh/haya14busa/ghglob)
 
 **ghglob** is glob, or more like pattern matcher based on GitHub Actions's
 [Filter pattern spec](https://help.github.com/en/articles/workflow-syntax-for-github-actions#filter-pattern-cheat-sheet).
