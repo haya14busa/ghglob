@@ -1,4 +1,5 @@
-// Package pattern implements GitHub Actions file patterns matcher.
+// Package pattern implements pattern matcher which imitates GitHub Actions
+// filter patterns (UNOFFICIAL). https://help.github.com/en/articles/workflow-syntax-for-github-actions#filter-pattern-cheat-sheet.
 package pattern
 
 import (
@@ -6,8 +7,8 @@ import (
 	"strings"
 )
 
-// Match returns true if given stirng (s) matches the given GitHub Actions file
-// patterns [1].
+// Match returns true if given string (s) matches the given GitHub Actions
+// filter patterns [1].
 //
 // - `*` matches zero or more characters, but does not match the / character
 // - `**` matches zero or more of any character
