@@ -107,7 +107,6 @@ func shouldIgnoreDot(patterns []string) bool {
 func shouldRoot(patterns []string) bool {
 	for _, p := range patterns {
 		if len(p) > 0 && p[0] != '/' {
-			fmt.Println(p, p[0])
 			return false
 		} else if len(p) > 1 && p[0] == '!' && p[1] != '/' {
 			return false
