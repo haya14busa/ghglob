@@ -7,6 +7,10 @@ import (
 	"strings"
 )
 
+type Matcher struct {
+	ms []matcher
+}
+
 // Match returns true if given string (s) matches the given GitHub Actions
 // filter patterns [1].
 //
@@ -18,22 +22,14 @@ import (
 // - `!` at the start of a pattern makes it negate previous positive patterns. It has no special meaning if not the first character
 //
 // [1]: https://help.github.com/en/articles/workflow-syntax-for-github-actions#filter-pattern-cheat-sheet
-func Match(s string, patterns []string) (bool, error) {
-	ms, err := buildMatchers(patterns)
-	if err != nil {
-		return false, err
-	}
+func (matcher *Matcher) Match(s string) bool {
 	ok := false
-	for _, m := range ms {
+	for _, m := range matcher.ms {
 		if m.r.MatchString(s) {
-			if m.negate {
-				ok = false
-			} else {
-				ok = true
-			}
+			ok = !m.negate
 		}
 	}
-	return ok, nil
+	return ok
 }
 
 type matcher struct {
@@ -41,7 +37,8 @@ type matcher struct {
 	negate bool
 }
 
-func buildMatchers(patterns []string) ([]matcher, error) {
+// New creates new Matcher.
+func New(patterns []string) (*Matcher, error) {
 	ms := make([]matcher, len(patterns))
 	for i, p := range patterns {
 		m := matcher{}
@@ -57,7 +54,7 @@ func buildMatchers(patterns []string) ([]matcher, error) {
 		m.r = r
 		ms[i] = m
 	}
-	return ms, nil
+	return &Matcher{ms: ms}, nil
 }
 
 func buildRegex(pattern string) (*regexp.Regexp, error) {
@@ -70,7 +67,7 @@ func replace(pattern string) string {
 	r := strings.NewReplacer(
 		// Special patterns.
 		`**/*`, `.*`,
-		`**/`, `.*(^|/)`,
+		`**/`, `(|.*(^|/))`,
 
 		`**`, `.*`,
 		`*`, `[^/]*`,
