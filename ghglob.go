@@ -70,7 +70,7 @@ func Glob(files chan<- string, patterns []string, opt Option) error {
 		}
 
 		if typ.IsDir() {
-			if p != strings.TrimSuffix(rootPrefix, "/") && p != "/" && shouldSkipDir(subms, p) {
+			if p != strings.TrimSuffix(rootPrefix, "/") && shouldSkipDir(subms, p) {
 				return filepath.SkipDir
 			}
 			return nil
@@ -106,7 +106,7 @@ func buildSubMatchers(patterns []string) ([]*ghmatcher.Matcher, error) {
 }
 
 func shouldSkipDir(ms []*ghmatcher.Matcher, path string) bool {
-	if len(ms) == 0 || path == "." {
+	if len(ms) == 0 || path == "." || path == "/" {
 		return false
 	}
 	for _, m := range ms {
