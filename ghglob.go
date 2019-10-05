@@ -16,13 +16,18 @@ type Option struct {
 	Root                string
 }
 
-func GlobList(patterns []string, opt Option) (files []string, err error) {
+func GlobList(patterns []string, opt Option) ([]string, error) {
 	ch := make(chan string)
+	errCh := make(chan error)
 	go func() {
-		err = Glob(ch, patterns, opt)
+		errCh <- Glob(ch, patterns, opt)
 	}()
+	var files []string
 	for f := range ch {
 		files = append(files, f)
+	}
+	if err := <-errCh; err != nil {
+		return nil, err
 	}
 	return files, nil
 }
