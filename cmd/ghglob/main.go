@@ -8,6 +8,8 @@ import (
 	"strings"
 
 	"github.com/haya14busa/ghglob"
+	"github.com/haya14busa/ghglob/pattern"
+	"github.com/mattn/go-isatty"
 )
 
 var (
@@ -18,6 +20,7 @@ var (
 
 func usage() {
 	fmt.Fprintln(os.Stderr, "Usage: ghglob [FLAGS] [PATTERN]...")
+	fmt.Fprintln(os.Stderr, "\tIf STDIN is provided, read it and return matched results.")
 	fmt.Fprintln(os.Stderr, "")
 	fmt.Fprintln(os.Stderr, "Flags:")
 	flag.PrintDefaults()
@@ -35,6 +38,14 @@ func main() {
 		os.Exit(1)
 	}
 
+	if isatty.IsTerminal(os.Stdin.Fd()) {
+		glob()
+	} else {
+		filter()
+	}
+}
+
+func glob() {
 	ps := flag.Args()
 	if !*all && shouldIgnoreDot(ps) {
 		ps = append(ps, "!**/.*")
@@ -52,6 +63,21 @@ func main() {
 	defer w.Flush()
 	for f := range files {
 		fmt.Fprintln(w, f)
+	}
+}
+
+func filter() {
+	s := bufio.NewScanner(os.Stdin)
+	m, err := pattern.New(flag.Args())
+	if err != nil {
+		fmt.Fprintln(os.Stderr, err)
+		os.Exit(1)
+	}
+	for s.Scan() {
+		t := s.Text()
+		if m.Match(t) {
+			fmt.Fprintln(os.Stdout, t)
+		}
 	}
 }
 
