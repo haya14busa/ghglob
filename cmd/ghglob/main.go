@@ -52,6 +52,9 @@ func glob() {
 		ps = append(ps, "!**/.*/**")
 	}
 	opt := ghglob.Option{Sort: *sort, FollowSymbolicLinks: *followSym}
+	if shouldRoot(flag.Args()) {
+		opt.Root = "/"
+	}
 	files := make(chan string, 100)
 	go func() {
 		if err := ghglob.Glob(files, ps, opt); err != nil {
@@ -85,7 +88,19 @@ func filter() {
 // patterns contains .
 func shouldIgnoreDot(patterns []string) bool {
 	for _, p := range patterns {
-		if p[0] == '.' || strings.Contains(p, "/.") {
+		if len(p) > 0 && p[0] == '.' || strings.Contains(p, "/.") {
+			return false
+		}
+	}
+	return true
+}
+
+func shouldRoot(patterns []string) bool {
+	for _, p := range patterns {
+		if len(p) > 0 && p[0] != '/' {
+			fmt.Println(p, p[0])
+			return false
+		} else if len(p) > 1 && p[0] == '!' && p[1] != '/' {
 			return false
 		}
 	}

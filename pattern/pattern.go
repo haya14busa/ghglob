@@ -67,7 +67,7 @@ func replace(pattern string) string {
 	r := strings.NewReplacer(
 		// Special patterns.
 		`**/*`, `.*`,
-		`**/`, `.*(^|/)`,
+		`**/`, `(|.*(^|/))`,
 
 		`**`, `.*`,
 		`*`, `[^/]*`,

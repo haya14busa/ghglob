@@ -33,6 +33,7 @@ func Glob(files chan<- string, patterns []string, opt Option) error {
 	if err != nil {
 		return err
 	}
+	isRoot := len(opt.Root) > 0 && opt.Root[0] == '/'
 	subms, err := buildSubMatchers(patterns)
 	if err != nil {
 		return fmt.Errorf("fail to build submatchers: %v", err)
@@ -44,12 +45,15 @@ func Glob(files chan<- string, patterns []string, opt Option) error {
 	rootPrefix := strings.TrimPrefix(root, "./")
 	if err := godirwalk.Walk(root, &godirwalk.Options{
 		Callback: func(path string, de *godirwalk.Dirent) error {
-			p := strings.TrimPrefix(path, rootPrefix)
+			p := path
+			if !isRoot {
+				p = strings.TrimPrefix(path, rootPrefix)
+			}
 			if p == "" {
 				return nil
 			}
 			if de.ModeType().IsDir() {
-				if p != strings.TrimSuffix(rootPrefix, "/") && shouldSkipDir(subms, p) {
+				if p != strings.TrimSuffix(rootPrefix, "/") && p != "/" && shouldSkipDir(subms, p) {
 					return skipdir{}
 				}
 				return nil

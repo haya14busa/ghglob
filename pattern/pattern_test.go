@@ -48,8 +48,16 @@ func TestMatcher_Match(t *testing.T) {
 			bad: []string{`README.md`, `docs/mona/octocat.txt`},
 		},
 		{
-			ps:  []string{`**/docs/**`},
-			ok:  []string{`/docs/hello.md`, `dir/docs/my-file.txt`, `space/docs/plan/space.doc`},
+			ps: []string{`**/docs/**`},
+			ok: []string{`/docs/hello.md`, `dir/docs/my-file.txt`, `space/docs/plan/space.doc`,
+				`docs/mona/hello-world.md`, // expected?
+			},
+			bad: []string{`README.md`, `hoge-docs/a`},
+		},
+		{
+			// added
+			ps:  []string{`dir/**/docs/**`},
+			ok:  []string{`dir/docs/my-file.txt`},
 			bad: []string{`README.md`, `hoge-docs/a`},
 		},
 		{
