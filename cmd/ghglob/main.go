@@ -48,12 +48,13 @@ func main() {
 	}
 }
 
-// Do not ignore dot files when -all=false for special cases that the # of
-// given patterns is only one and it contains .
+// Do not ignore dot files when -all=false for special cases that given
+// patterns contains .
 func shouldIgnoreDot(patterns []string) bool {
-	if len(patterns) == 1 {
-		return true
+	for _, p := range patterns {
+		if p[0] == '.' || strings.Contains(p, "/.") {
+			return false
+		}
 	}
-	p := patterns[0]
-	return !(p[0] == '.' || strings.Contains(p, "/."))
+	return true
 }
