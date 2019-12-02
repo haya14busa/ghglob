@@ -7,7 +7,7 @@ builds:
   - env:
     - CGO_ENABLED=0
     main: ./cmd/ghglob/
-    ldflags: -s -w -X main.version=={{.Version}}
+    ldflags: -s -w -X main.version={{.Version}}
 
 archives:
   - id: main
