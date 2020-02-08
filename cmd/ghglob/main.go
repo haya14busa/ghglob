@@ -54,7 +54,10 @@ func main() {
 }
 
 func glob() {
-	ps := flag.Args()
+	var ps []string
+	for _, arg := range flag.Args() {
+		ps = append(ps, strings.Fields(arg)...)
+	}
 	if !*all && shouldIgnoreDot(ps) {
 		ps = append(ps, "!**/.**")
 	}
